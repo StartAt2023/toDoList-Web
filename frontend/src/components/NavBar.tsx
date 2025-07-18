@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { NavBar as StyledNavBar, NavTitle, NavActions, AddBtn, UserStatus, UserAvatar, NavLinkBtn } from '../pages/MainPage.styles';
+import { NavBar as StyledNavBar, NavTitle, NavActions, AddBtn, UserAvatar, NavLinkBtn } from '../pages/MainPage.styles';
 import { Link, useNavigate } from 'react-router-dom';
 
 interface NavBarProps {
