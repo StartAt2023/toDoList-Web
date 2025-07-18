@@ -5,6 +5,9 @@ import RegisterPage from './pages/RegisterPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import MainPage from './pages/MainPage';
 import DailyMemoPage from './pages/DailyMemoPage';
+import SettingPage from './pages/SettingPage';
+import ChartPage from './pages/ChartPage';
+import FriendPage from './pages/FriendPage';
 
 function App() {
   return (
@@ -15,6 +18,9 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/main" element={<MainPage />} />
         <Route path="/daily-memo" element={<DailyMemoPage />} />
+        <Route path="/setting" element={<SettingPage />} />
+        <Route path="/chart" element={<ChartPage />} />
+        <Route path="/friend" element={<FriendPage />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>

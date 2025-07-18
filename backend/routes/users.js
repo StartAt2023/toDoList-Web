@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const Task = require('../models/Task');
 const jwt = require('jsonwebtoken');
+const DailyMemo = require('../models/DailyMemo');
 
 function auth(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -141,6 +142,82 @@ router.delete('/tasks/:id', auth, async (req, res) => {
     const task = await Task.findOneAndDelete({ _id: req.params.id, userId: req.user.id });
     if (!task) return res.status(404).json({ error: 'Task not found' });
     res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error', details: err.message });
+  }
+});
+
+// 获取某天的 daily memo 及统计
+router.get('/daily-memo', auth, async (req, res) => {
+  try {
+    const { date } = req.query;
+    if (!date) return res.status(400).json({ error: 'date required' });
+    let memo = await DailyMemo.findOne({ userId: req.user.id, date });
+    if (!memo) return res.json({ success: true, tasks: [], total: 0, completed: 0, percent: 0 });
+    const total = memo.tasks.length;
+    const completed = memo.tasks.filter(t => t.completed).length;
+    const percent = total === 0 ? 0 : completed / total;
+    res.json({ success: true, tasks: memo.tasks, total, completed, percent });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error', details: err.message });
+  }
+});
+// 添加 daily memo 任务
+router.post('/daily-memo', auth, async (req, res) => {
+  try {
+    const { date, name } = req.body;
+    if (!date || !name) return res.status(400).json({ error: 'date and name required' });
+    let memo = await DailyMemo.findOne({ userId: req.user.id, date });
+    if (!memo) {
+      memo = new DailyMemo({ userId: req.user.id, date, tasks: [{ name }] });
+    } else {
+      memo.tasks.push({ name });
+    }
+    await memo.save();
+    res.json({ success: true, tasks: memo.tasks });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error', details: err.message });
+  }
+});
+// 完成/未完成 daily memo 任务
+router.put('/daily-memo/:date/:taskIdx', auth, async (req, res) => {
+  try {
+    const { date, taskIdx } = req.params;
+    const { completed } = req.body;
+    let memo = await DailyMemo.findOne({ userId: req.user.id, date });
+    if (!memo || !memo.tasks[taskIdx]) return res.status(404).json({ error: 'Task not found' });
+    memo.tasks[taskIdx].completed = completed;
+    await memo.save();
+    res.json({ success: true, tasks: memo.tasks });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error', details: err.message });
+  }
+});
+// 删除 daily memo 任务
+router.delete('/daily-memo/:date/:taskIdx', auth, async (req, res) => {
+  try {
+    const { date, taskIdx } = req.params;
+    let memo = await DailyMemo.findOne({ userId: req.user.id, date });
+    if (!memo || !memo.tasks[taskIdx]) return res.status(404).json({ error: 'Task not found' });
+    memo.tasks.splice(taskIdx, 1);
+    await memo.save();
+    res.json({ success: true, tasks: memo.tasks });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error', details: err.message });
+  }
+});
+
+// 获取所有 daily memo 完成率
+router.get('/daily-memo/all', auth, async (req, res) => {
+  try {
+    const memos = await DailyMemo.find({ userId: req.user.id }).sort({ date: 1 });
+    const stats = memos.map(memo => {
+      const total = memo.tasks.length;
+      const completed = memo.tasks.filter(t => t.completed).length;
+      const percent = total === 0 ? 0 : completed / total;
+      return { date: memo.date, percent, total, completed };
+    });
+    res.json({ success: true, stats });
   } catch (err) {
     res.status(500).json({ error: 'Server error', details: err.message });
   }

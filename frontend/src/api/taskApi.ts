@@ -3,6 +3,7 @@ import axios from 'axios';
 const API_BASE = process.env.REACT_APP_API_BASE || 'http://localhost:5000/api';
 
 export interface Task {
+  _id?: string;
   taskId: number;
   title: string;
   assignee: string;
@@ -13,6 +14,24 @@ export interface Task {
   priority: number;
   type: 'family'|'study'|'work'|'other';
   createdAt?: string;
+}
+
+export interface DailyMemoTask {
+  name: string;
+  completed: boolean;
+}
+export interface DailyMemoStats {
+  tasks: DailyMemoTask[];
+  total: number;
+  completed: number;
+  percent: number;
+}
+
+export interface DailyMemoDayStat {
+  date: string;
+  percent: number;
+  total: number;
+  completed: number;
 }
 
 function getAuthHeader() {
@@ -30,13 +49,13 @@ export async function addTask(task: Omit<Task, 'taskId'|'completed'|'createdAt'>
   return (res.data as { task: Task }).task;
 }
 
-export async function updateTask(taskId: number, updates: Partial<Task>) {
-  const res = await axios.put(`${API_BASE}/users/tasks/${taskId}`, updates, { headers: getAuthHeader() });
+export async function updateTask(_id: string, updates: Partial<Task>) {
+  const res = await axios.put(`${API_BASE}/users/tasks/${_id}`, updates, { headers: getAuthHeader() });
   return (res.data as { task: Task }).task;
 }
 
-export async function deleteTask(taskId: number) {
-  await axios.delete(`${API_BASE}/users/tasks/${taskId}`, { headers: getAuthHeader() });
+export async function deleteTask(_id: string) {
+  await axios.delete(`${API_BASE}/users/tasks/${_id}`, { headers: getAuthHeader() });
 }
 
 // 新增用户相关API
@@ -57,4 +76,26 @@ export async function registerUser(data: {
 }) {
   const res = await axios.post(`${API_BASE}/users/register`, data);
   return res.data;
+}
+
+export async function fetchDailyMemo(date: string): Promise<DailyMemoStats> {
+  const res = await axios.get(`${API_BASE}/users/daily-memo?date=${date}`, { headers: getAuthHeader() });
+  return res.data as DailyMemoStats;
+}
+export async function addDailyMemoTask(date: string, name: string): Promise<DailyMemoTask[]> {
+  const res: any = await axios.post(`${API_BASE}/users/daily-memo`, { date, name }, { headers: getAuthHeader() });
+  return res.data.tasks as DailyMemoTask[];
+}
+export async function updateDailyMemoTask(date: string, taskIdx: number, completed: boolean): Promise<DailyMemoTask[]> {
+  const res: any = await axios.put(`${API_BASE}/users/daily-memo/${date}/${taskIdx}`, { completed }, { headers: getAuthHeader() });
+  return res.data.tasks as DailyMemoTask[];
+}
+export async function deleteDailyMemoTask(date: string, taskIdx: number): Promise<DailyMemoTask[]> {
+  const res: any = await axios.delete(`${API_BASE}/users/daily-memo/${date}/${taskIdx}`, { headers: getAuthHeader() });
+  return res.data.tasks as DailyMemoTask[];
+}
+
+export async function fetchAllDailyMemoStats(): Promise<DailyMemoDayStat[]> {
+  const res = await axios.get(`${API_BASE}/users/daily-memo/all`, { headers: getAuthHeader() });
+  return (res.data as { stats: DailyMemoDayStat[] }).stats;
 } 

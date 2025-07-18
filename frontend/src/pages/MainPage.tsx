@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  GradientBg, MainContainer, EmptyTip, CreateTaskBtn, TaskList, NoTasksText, NavBarDivider, SortBar, typeColor, TaskCard, TaskTitle,
+  GradientBg, MainContainer, EmptyTip, CreateTaskBtn, TaskList, NoTasksText, SortBar, TaskCard, TaskTitle,
   TaskMeta, TaskDesc, TaskActions, ActionBtn, ModalOverlay, ModalCard, ModalTitle, FormRow, ModalForm,
   ModalLabel, ModalInput, ModalSelect, ModalTextarea, ModalActions, ModalBtn, ConfirmOverlay, ConfirmCard, ConfirmText, AddBtn
 } from './MainPage.styles';
@@ -27,7 +27,7 @@ const MainPage: React.FC = () => {
     priority: 2,
     type: 'family',
   });
-  const [confirm, setConfirm] = useState<{id: number, type: 'delete'|'complete', early?: boolean}|null>(null);
+  const [confirm, setConfirm] = useState<{id: string, type: 'delete'|'complete', early?: boolean}|null>(null);
   const [error, setError] = useState<string|null>(null);
   const user = { name: 'James Admin' };
   const [sortType, setSortType] = useState<'none'|'start'|'priority'>('none');
@@ -77,7 +77,7 @@ const MainPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     try {
       await deleteTask(id);
       setTasks(await fetchTasks());
@@ -87,7 +87,7 @@ const MainPage: React.FC = () => {
     }
   };
 
-  const handleComplete = async (id: number) => {
+  const handleComplete = async (id: string) => {
     try {
       await updateTask(id, { completed: true });
       setTasks(await fetchTasks());
@@ -101,9 +101,9 @@ const MainPage: React.FC = () => {
     const now = new Date();
     const end = new Date(task.endTime);
     if (now < end) {
-      setConfirm({ id: task.taskId, type: 'complete', early: true });
+      setConfirm({ id: task._id || '', type: 'complete', early: true });
     } else {
-      setConfirm({ id: task.taskId, type: 'complete' });
+      setConfirm({ id: task._id || '', type: 'complete' });
     }
   };
 
@@ -129,7 +129,6 @@ const MainPage: React.FC = () => {
           userName={user.name}
           onLogout={handleLogout}
         />
-        <NavBarDivider />
         <MainContainer style={{position:'relative'}}>
           {tasks.length === 0 && (
             <EmptyTip>
@@ -147,7 +146,7 @@ const MainPage: React.FC = () => {
           <TaskList>
             {sortTasks(tasks).map((task, idx) => (
               <TaskCard
-                key={task.taskId}
+                key={task._id}
                 type={task.type}
                 completed={task.completed}
                 draggable
@@ -165,7 +164,7 @@ const MainPage: React.FC = () => {
                 <TaskDesc>{task.description}</TaskDesc>
                 <TaskActions>
                   {!task.completed && <ActionBtn onClick={() => openComplete(task)}>Complete</ActionBtn>}
-                  <ActionBtn onClick={() => setConfirm({ id: task.taskId, type: 'delete' })}>Delete</ActionBtn>
+                  <ActionBtn onClick={() => setConfirm({ id: task._id || '', type: 'delete' })}>Delete</ActionBtn>
                 </TaskActions>
               </TaskCard>
             ))}

@@ -13,7 +13,7 @@ export const GlobalStyle = createGlobalStyle`
 
 export const GradientBg = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #f857a6 0%, #ff5858 100%);
+  background: linear-gradient(135deg,rgb(31, 30, 30) 0%,rgb(250, 247, 247) 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -23,7 +23,7 @@ export const GradientBg = styled.div`
 export const NavBar = styled.nav`
   width: 100%;
   height: 60px;
-  background: rgba(30,32,40,0.7);
+  background: linear-gradient(180deg, rgba(30,32,40,0.75) 0%, rgba(80,90,120,0.35) 100%);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -33,7 +33,7 @@ export const NavBar = styled.nav`
   left: 0;
   z-index: 10;
   box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(18px) saturate(1.5);
 `;
 export const NavTitle = styled.div`
   color: #fff;
@@ -157,19 +157,10 @@ export const NoTasksText = styled.p`
   letter-spacing: 1px;
   text-shadow: 0 2px 8px rgba(60,72,88,0.10);
 `;
-export const NavBarDivider = styled.div`
-  width: 100vw;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(99,102,241,0.18) 0%, rgba(59,130,246,0.12) 100%);
-  margin-top: 60px;
-  margin-bottom: 18px;
-  box-shadow: 0 2px 12px rgba(60, 72, 88, 0.10);
-  backdrop-filter: blur(6px);
-`;
 export const SortBar = styled.div`
   position: absolute;
   top: 80px;
-  right: 32px;
+  left: 32px;
   z-index: 2;
   display: flex;
   gap: 12px;
@@ -183,15 +174,16 @@ export const typeColor = {
 export const TaskCard = styled.div<{type: keyof typeof typeColor, completed: boolean}>`
   min-width: 320px;
   max-width: 340px;
-  background: ${({type}) => typeColor[type]};
+  background: ${({completed, type}) => completed ? 'linear-gradient(120deg, rgba(60,255,120,0.18) 0%, rgba(34,197,94,0.18) 100%)' : 'linear-gradient(120deg, rgba(255,255,255,0.10) 0%, rgba(80,90,120,0.18) 100%)'};
   border-radius: 18px;
-  box-shadow: 0 2px 12px rgba(60, 72, 88, 0.10);
+  box-shadow: 0 2px 18px rgba(60, 72, 88, 0.18);
   padding: 28px 28px 20px 28px;
   display: flex;
   flex-direction: column;
   position: relative;
   opacity: ${({completed}) => completed ? 0.5 : 1};
   user-select: none;
+  backdrop-filter: blur(14px) saturate(1.2);
 `;
 export const TaskTitle = styled.div`
   font-size: 1.25rem;
@@ -462,6 +454,7 @@ export const TaskInputRow = styled.div`
   display: flex;
   gap: 12px;
   margin-bottom: 18px;
+  color: #fff;
 `;
 export const TaskInput = styled.input`
   padding: 12px 18px;
@@ -480,8 +473,8 @@ export const TaskInput = styled.input`
   }
 `;
 export const AddTaskBtn = styled.button`
-  background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%);
-  color: #fff;
+  background: #fff;
+  color: #23242b;
   font-size: 1.3rem;
   border: none;
   border-radius: 50%;
@@ -492,8 +485,8 @@ export const AddTaskBtn = styled.button`
   justify-content: center;
   cursor: pointer;
   box-shadow: 0 2px 12px rgba(60, 72, 88, 0.12);
-  transition: background 0.2s;
-  &:hover { background: linear-gradient(90deg, #38f9d7 0%, #43e97b 100%); }
+  transition: background 0.2s, color 0.2s;
+  &:hover { background: #f3f4f6; color: #6366f1; }
 `;
 export const TaskListCol = styled.div`
   width: 100%;
@@ -504,15 +497,16 @@ export const TaskListCol = styled.div`
   gap: 16px;
 `;
 export const TaskItem = styled.div<{status: 'pending'|'completed'|'overdue'}>`
-  background: ${({status}) => status==='completed' ? 'rgba(34,197,94,0.18)' : status==='overdue' ? 'rgba(239,68,68,0.18)' : 'rgba(255,255,255,0.18)'};
-  color: ${({status}) => status==='completed' ? '#22c55e' : status==='overdue' ? '#ef4444' : '#fff'};
+  background: ${({status}) => status==='completed' ? 'rgba(34,197,94,0.18)' : status==='overdue' ? 'rgba(239,68,68,0.18)' : 'linear-gradient(120deg, rgba(255,255,255,0.10) 0%, rgba(80,90,120,0.18) 100%)'};
+  color: #fff;
   border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(60, 72, 88, 0.10);
+  box-shadow: 0 2px 18px rgba(60, 72, 88, 0.18);
   padding: 18px 18px 14px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 1.12rem;
+  backdrop-filter: blur(10px) saturate(1.2);
 `;
 export const TaskName = styled.span`
   flex: 1;
@@ -522,12 +516,12 @@ export const TaskBtnGroup = styled.div`
   display: flex;
   gap: 10px;
 `;
-export const RoundBtn = styled.button<{color: string}>`
+export const RoundBtn = styled.button<{color: string, active?: boolean}>`
   width: 36px;
   height: 36px;
   border-radius: 50%;
   border: none;
-  background: ${({color}) => color};
+  background: ${({color, active}) => active ? '#ef4444' : color};
   color: #fff;
   font-size: 1.3rem;
   display: flex;
