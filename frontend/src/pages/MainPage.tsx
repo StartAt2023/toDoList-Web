@@ -5,7 +5,7 @@ import {
   ModalLabel, ModalInput, ModalSelect, ModalTextarea, ModalActions, ModalBtn, ConfirmOverlay, ConfirmCard, ConfirmText, AddBtn
 } from './MainPage.styles';
 import NavBar from '../components/NavBar';
-import { fetchTasks, addTask, deleteTask, updateTask, Task as ApiTask } from '../api/taskApi';
+import { fetchTasks, addTask, deleteTask, updateTask, Task as ApiTask, getUserProfile } from '../api/taskApi';
 
 const MainPage: React.FC = () => {
   const [tasks, setTasks] = useState<ApiTask[]>([]);
@@ -29,7 +29,6 @@ const MainPage: React.FC = () => {
   });
   const [confirm, setConfirm] = useState<{id: string, type: 'delete'|'complete', early?: boolean}|null>(null);
   const [error, setError] = useState<string|null>(null);
-  const user = { name: 'James Admin' };
   const [sortType, setSortType] = useState<'none'|'start'|'priority'>('none');
 
   useEffect(() => {
@@ -126,7 +125,6 @@ const MainPage: React.FC = () => {
     <>
       <GradientBg>
         <NavBar
-          userName={user.name}
           onLogout={handleLogout}
         />
         <MainContainer style={{position:'relative'}}>

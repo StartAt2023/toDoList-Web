@@ -1,10 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { NavBar as StyledNavBar, NavTitle, NavActions, AddBtn, UserAvatar, NavLinkBtn } from '../pages/MainPage.styles';
 import { Link, useNavigate } from 'react-router-dom';
+import { getUserProfile } from '../api/taskApi';
 
 interface NavBarProps {
-  userName: string;
-  onLogout: () => void;
+  onLogout?: () => void;
   onAddTask?: () => void;
   onThemeChange?: () => void;
   children?: React.ReactNode;
@@ -16,12 +16,48 @@ const getInitials = (name: string) => {
   return letters ? letters.slice(0,2).join('').toUpperCase() : 'U';
 };
 
-const NavBar: React.FC<NavBarProps> = ({ userName, onLogout, onAddTask, onThemeChange, children }) => {
+const NavBar: React.FC<NavBarProps> = ({ onLogout, onAddTask, onThemeChange, children }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
+  const [userName, setUserName] = useState<string>('User');
   const hideTimer = useRef<NodeJS.Timeout|null>(null);
   const avatarRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+
+  // Load user profile
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      try {
+        const user = await getUserProfile();
+        setUserName(user.username);
+      } catch (error) {
+        console.error('Failed to load user profile:', error);
+        // Fallback: get username from JWT token
+        try {
+          const token = localStorage.getItem('token');
+          if (token) {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            if (payload.username) {
+              setUserName(payload.username);
+              return;
+            }
+          }
+        } catch (tokenError) {
+          console.error('Failed to decode token:', tokenError);
+        }
+        setUserName('User'); // Default value
+      }
+    };
+    
+    loadUserProfile();
+  }, []);
+
+  // Default logout handler
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  };
 
   const showMenu = () => {
     if (hideTimer.current) clearTimeout(hideTimer.current);
@@ -57,6 +93,9 @@ const NavBar: React.FC<NavBarProps> = ({ userName, onLogout, onAddTask, onThemeC
         <Link to="/main" style={{textDecoration:'none'}}>
           <NavLinkBtn title="Main">Main</NavLinkBtn>
         </Link>
+        <Link to="/focus" style={{textDecoration:'none'}}>
+          <NavLinkBtn title="Focus">Focus</NavLinkBtn>
+        </Link>
         {onThemeChange && (
           <AddBtn title="Change Theme" onClick={onThemeChange} style={{marginRight: 8}}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2m11-11h-2M3 12H1m16.95 6.95-1.41-1.41M6.34 6.34 4.93 4.93m12.02 0-1.41 1.41M6.34 17.66l-1.41 1.41"/></svg>
@@ -89,7 +128,7 @@ const NavBar: React.FC<NavBarProps> = ({ userName, onLogout, onAddTask, onThemeC
               <div style={{padding:'10px 24px',color:'#fff',cursor:'pointer'}} onClick={()=>{setMenuOpen(false);setMenuVisible(false);navigate('/setting');}}>Setting</div>
               <div style={{padding:'10px 24px',color:'#fff',cursor:'pointer'}} onClick={()=>{setMenuOpen(false);setMenuVisible(false);navigate('/chart');}}>Chart</div>
               <div style={{padding:'10px 24px',color:'#fff',cursor:'pointer'}} onClick={()=>{setMenuOpen(false);setMenuVisible(false);navigate('/friend');}}>Friend</div>
-              <div style={{padding:'10px 24px',color:'#ef4444',cursor:'pointer'}} onClick={()=>{setMenuOpen(false);setMenuVisible(false);onLogout();}}>Logout</div>
+              <div style={{padding:'10px 24px',color:'#ef4444',cursor:'pointer'}} onClick={()=>{setMenuOpen(false);setMenuVisible(false);onLogout?.() || handleLogout();}}>Logout</div>
             </div>
           )}
         </div>

@@ -223,4 +223,20 @@ router.get('/daily-memo/all', auth, async (req, res) => {
   }
 });
 
+// 获取当前用户信息
+router.get('/profile', auth, async (req, res) => {
+  try {
+    console.log('JWT decoded user:', req.user); // 调试信息
+    const user = await User.findById(req.user.id).select('username email');
+    console.log('Database user:', user); // 调试信息
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json({ success: true, user: { username: user.username, email: user.email } });
+  } catch (err) {
+    console.error('Profile API error:', err); // 调试信息
+    res.status(500).json({ error: 'Server error', details: err.message });
+  }
+});
+
 module.exports = router;

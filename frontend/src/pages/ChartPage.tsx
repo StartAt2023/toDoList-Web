@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { GradientBg } from './MainPage.styles';
 import NavBar from '../components/NavBar';
-import { fetchAllDailyMemoStats, DailyMemoDayStat } from '../api/taskApi';
+import { fetchAllDailyMemoStats, DailyMemoDayStat, getUserProfile } from '../api/taskApi';
 
 const motivationalQuotes = [
   'Discipline is the bridge between goals and accomplishment.',
@@ -40,6 +40,7 @@ const ChartPage: React.FC = () => {
   const [quoteIdx, setQuoteIdx] = useState(0);
   const [stats, setStats] = useState<DailyMemoDayStat[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userName, setUserName] = useState<string>('User');
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -53,9 +54,23 @@ const ChartPage: React.FC = () => {
     fetchAllDailyMemoStats().then(s => setStats(s)).finally(() => setLoading(false));
   }, []);
 
+  // 获取用户信息
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      try {
+        const user = await getUserProfile();
+        setUserName(user.username);
+      } catch (error) {
+        console.error('Failed to load user profile:', error);
+      }
+    };
+    
+    loadUserProfile();
+  }, []);
+
   return (
     <GradientBg style={{alignItems:'center'}}>
-      <NavBar userName="User" onLogout={()=>{localStorage.clear();window.location.href='/login';}} />
+      <NavBar onLogout={()=>{localStorage.clear();window.location.href='/login';}} />
       <div style={{marginTop:60,marginBottom:32,minHeight:48,transition:'all 0.6s',fontSize:'1.5rem',fontWeight:800,letterSpacing:1,color:'#fff',textAlign:'center'}}>
         {motivationalQuotes[quoteIdx]}
       </div>

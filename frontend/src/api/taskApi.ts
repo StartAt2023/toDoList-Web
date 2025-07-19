@@ -98,4 +98,21 @@ export async function deleteDailyMemoTask(date: string, taskIdx: number): Promis
 export async function fetchAllDailyMemoStats(): Promise<DailyMemoDayStat[]> {
   const res = await axios.get(`${API_BASE}/users/daily-memo/all`, { headers: getAuthHeader() });
   return (res.data as { stats: DailyMemoDayStat[] }).stats;
+}
+
+// 获取当前用户信息
+export async function getUserProfile(): Promise<{ username: string; email: string }> {
+  const res = await axios.get(`${API_BASE}/users/profile`, { headers: getAuthHeader() });
+  console.log('API response:', res.data); // 调试信息
+  
+  // 检查数据结构
+  const data = res.data as any;
+  if (data && data.user) {
+    return data.user;
+  } else if (data && data.username) {
+    // 如果数据直接在根级别
+    return { username: data.username, email: data.email || '' };
+  } else {
+    throw new Error('Invalid response format');
+  }
 } 

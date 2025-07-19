@@ -8,6 +8,9 @@ import DailyMemoPage from './pages/DailyMemoPage';
 import SettingPage from './pages/SettingPage';
 import ChartPage from './pages/ChartPage';
 import FriendPage from './pages/FriendPage';
+import FocusPage from './pages/FocusPage';
+import TestPage from './pages/TestPage';
+import DebugPage from './pages/DebugPage';
 
 function App() {
   return (
@@ -22,6 +25,9 @@ function App() {
         <Route path="/setting" element={<SettingPage />} />
         <Route path="/chart" element={<ChartPage />} />
         <Route path="/friend" element={<FriendPage />} />
+        <Route path="/focus" element={<FocusPage />} />
+        <Route path="/test" element={<TestPage />} />
+        <Route path="/debug" element={<DebugPage />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>

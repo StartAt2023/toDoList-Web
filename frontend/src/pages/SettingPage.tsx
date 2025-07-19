@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GradientBg } from './MainPage.styles';
 import NavBar from '../components/NavBar';
+import { getUserProfile } from '../api/taskApi';
 
 const SettingPage: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -9,6 +10,20 @@ const SettingPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [msg, setMsg] = useState('');
+  // 获取用户信息
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      try {
+        const user = await getUserProfile();
+        setUsername(user.username);
+        setEmail(user.email);
+      } catch (error) {
+        console.error('Failed to load user profile:', error);
+      }
+    };
+    
+    loadUserProfile();
+  }, []);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,7 +32,7 @@ const SettingPage: React.FC = () => {
 
   return (
     <GradientBg style={{alignItems:'center'}}>
-      <NavBar userName="User" onLogout={()=>{localStorage.clear();window.location.href='/login';}} />
+      <NavBar onLogout={()=>{localStorage.clear();window.location.href='/login';}} />
       <div style={{marginTop:60, background:'rgba(30,32,40,0.98)', borderRadius:16, padding:36, minWidth:340, boxShadow:'0 4px 24px rgba(0,0,0,0.18)'}}>
         <h2 style={{color:'#fff',marginBottom:24}}>Settings</h2>
         <form onSubmit={handleSave} style={{display:'flex',flexDirection:'column',gap:18}}>

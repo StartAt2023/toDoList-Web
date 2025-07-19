@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import NavBar from '../components/NavBar';
 import { GradientBg, DatePicker, TaskInputRow, TaskInput, AddTaskBtn, TaskListCol, TaskItem, TaskName, TaskBtnGroup, RoundBtn } from './MainPage.styles';
-import { fetchDailyMemo, addDailyMemoTask, updateDailyMemoTask, deleteDailyMemoTask, DailyMemoTask, DailyMemoStats } from '../api/taskApi';
+import { fetchDailyMemo, addDailyMemoTask, updateDailyMemoTask, deleteDailyMemoTask, DailyMemoTask, DailyMemoStats, getUserProfile } from '../api/taskApi';
 
 const DailyMemoPage: React.FC = () => {
   const [date, setDate] = useState<string>('');
@@ -9,7 +9,6 @@ const DailyMemoPage: React.FC = () => {
   const [tasks, setTasks] = useState<DailyMemoTask[]>([]);
   const [stats, setStats] = useState<DailyMemoStats|null>(null);
   const [loading, setLoading] = useState(false);
-
   const today = new Date();
   const todayStr = new Date().toISOString().split('T')[0];
 
@@ -54,7 +53,7 @@ const DailyMemoPage: React.FC = () => {
 
   return (
     <GradientBg>
-      <NavBar userName="James Admin" onLogout={()=>{localStorage.clear();window.location.href='/login';}} />
+      <NavBar onLogout={()=>{localStorage.clear();window.location.href='/login';}} />
       <h2 style={{color:'#fff',marginTop:24,marginBottom:0,fontWeight:800,letterSpacing:1}}>Daily Memo</h2>
       <DatePicker type="date" value={date} min={todayStr} onChange={e=>setDate(e.target.value)} />
       {date && (
